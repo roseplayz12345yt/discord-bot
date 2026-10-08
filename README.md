@@ -1,8 +1,8 @@
 # Discord Bot (Cloudflare Workers)
 
-A simple Discord bot that runs for **free** on [Cloudflare Workers](https://workers.cloudflare.com).
+A simple Discord bot that runs **for free** on Cloudflare Workers.
 
-It uses Discord’s **Interactions** (slash commands) so it doesn’t need a permanent WebSocket connection.
+Works great even if you're on a phone — no terminal required.
 
 ### Commands
 | Command | Description |
@@ -13,125 +13,78 @@ It uses Discord’s **Interactions** (slash commands) so it doesn’t need a per
 
 ---
 
-## 1. Create a Discord Application + Bot
+## Setup on Phone (No Terminal)
 
-1. Go to [Discord Developer Portal](https://discord.com/developers/applications)
-2. Click **New Application** → give it a name
-3. Go to **Bot** → click **Add Bot** → confirm
-4. Under **Token**, click **Reset Token** and copy it (this is `DISCORD_TOKEN`)
-5. Go to **General Information** and copy the **Application ID** (`DISCORD_APPLICATION_ID`)
-6. Go to **General Information** → copy the **Public Key** (`DISCORD_PUBLIC_KEY`)
+### Step 1 – Create the Discord Bot
 
-### Invite the bot to your server
+1. Open this link on your phone: [Discord Developer Portal](https://discord.com/developers/applications)
+2. Tap **New Application** → give it a name → Create
+3. Go to the **Bot** tab → **Add Bot** → confirm
+4. Tap **Reset Token** and **copy** the token (save it in your notes)
+5. Go to **General Information** and copy:
+   - **Application ID**
+   - **Public Key**
 
-1. Go to **OAuth2 → URL Generator**
-2. Select scopes: `bot` and `applications.commands`
-3. Select permissions: `Send Messages`, `Use Slash Commands`
-4. Copy the generated URL and open it in your browser to invite the bot
+### Step 2 – Invite the bot to your server
 
----
+1. Still in the Developer Portal, go to **OAuth2 → URL Generator**
+2. Check these boxes:
+   - Scopes: `bot` and `applications.commands`
+   - Bot Permissions: `Send Messages` + `Use Slash Commands`
+3. Copy the URL at the bottom and open it
+4. Choose your server and authorize
 
-## 2. Deploy to Cloudflare Workers (Free)
+### Step 3 – Deploy on Cloudflare (all in browser)
 
-### Prerequisites
-- A free [Cloudflare account](https://dash.cloudflare.com/sign-up)
-- Node.js installed on your computer
+1. Go to [Cloudflare Dashboard](https://dash.cloudflare.com) and sign up / log in (free)
+2. In the left sidebar tap **Workers & Pages**
+3. Tap **Create** → **Create Worker**
+4. Give it a name (example: `discord-bot`) → **Deploy**
+5. After it deploys, tap **Edit code**
+6. **Delete everything** in the editor
+7. Open this file on GitHub:  
+   [src/index.js](https://github.com/roseplayz12345yt/discord-bot/blob/main/src/index.js)
+8. Tap the **Raw** button → select all → copy
+9. Paste it into the Cloudflare editor → **Save and Deploy**
 
-### Steps
+### Step 4 – Add the secrets (still in browser)
 
-```bash
-# Clone the repo
-git clone https://github.com/roseplayz12345yt/discord-bot.git
-cd discord-bot
+1. In your Worker page, go to **Settings** → **Variables and Secrets**
+2. Under **Secrets**, add these three one by one (tap “Add” each time):
 
-# Install dependencies
-npm install
+   | Name | Value |
+   |------|-------|
+   | `DISCORD_TOKEN` | Your Bot Token |
+   | `DISCORD_PUBLIC_KEY` | Your Public Key |
+   | `DISCORD_APPLICATION_ID` | Your Application ID |
 
-# Login to Cloudflare (one-time)
-npx wrangler login
-```
+3. Save each one
 
-### Set the secrets
+### Step 5 – Connect Discord to your Worker
 
-```bash
-npx wrangler secret put DISCORD_TOKEN
-# paste your bot token
+1. Copy your Worker URL (it looks like `https://discord-bot.yourname.workers.dev`)
+2. Go back to [Discord Developer Portal](https://discord.com/developers/applications)
+3. Select your app → **General Information**
+4. Paste the Worker URL into **Interactions Endpoint URL**
+5. Tap **Save Changes**  
+   (Discord will test it — if it saves, it’s working!)
 
-npx wrangler secret put DISCORD_PUBLIC_KEY
-# paste the Public Key from the Developer Portal
+### Step 6 – Register the slash commands (phone friendly)
 
-npx wrangler secret put DISCORD_APPLICATION_ID
-# paste the Application ID
-```
+1. Open this page on your phone:  
+   **[Register Commands Page](https://roseplayz12345yt.github.io/discord-bot/register.html)**  
+   *(or open the `register.html` file from the repo)*
 
-### Deploy
+2. Paste your **Bot Token** and **Application ID**
+3. Tap **Register Commands**
 
-```bash
-npm run deploy
-```
-
-After deploying, Cloudflare will give you a URL that looks like:
-```
-https://discord-bot.your-username.workers.dev
-```
-
----
-
-## 3. Tell Discord where the bot lives
-
-1. Go back to the [Discord Developer Portal](https://discord.com/developers/applications)
-2. Select your application
-3. Go to **General Information**
-4. Find **Interactions Endpoint URL**
-5. Paste your Cloudflare Worker URL:
-   ```
-   https://discord-bot.your-username.workers.dev
-   ```
-6. Click **Save Changes**
-
-Discord will send a PING to verify it works. If it saves successfully, you’re good!
+You should see a green success message.  
+Now go to your Discord server and try typing `/ping`!
 
 ---
 
-## 4. Register the slash commands
+## That’s it!
 
-```bash
-# Set the variables temporarily
-export DISCORD_TOKEN="your_bot_token"
-export DISCORD_APPLICATION_ID="your_application_id"
+Your bot is now live 24/7 for free on Cloudflare.
 
-# Register the commands
-npm run register
-```
-
-You should see:
-```
-✅ Successfully registered commands:
-  /ping
-  /hello
-  /info
-```
-
-Now go to any server the bot is in and try typing `/ping`!
-
----
-
-## Local development
-
-```bash
-npm run dev
-```
-
-This starts a local version. You’ll need a tunnel (like Cloudflare Tunnel or ngrok) if you want Discord to reach it.
-
----
-
-## Notes
-
-- Cloudflare Workers free plan is more than enough for a personal bot.
-- This bot only responds to slash commands (no message content intent needed).
-- You can add more commands by editing `src/index.js` and re-registering them.
-
----
-
-Made for free hosting on Cloudflare Workers ⚡
+If you ever want to change the code later, just edit it again in the Cloudflare dashboard and hit Save and Deploy.

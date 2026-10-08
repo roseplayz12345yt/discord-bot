@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register Discord Slash Commands</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #1e1f22;
+      color: #f2f3f5;
+      min-height: 100vh;
+      padding: 20px;
+      line-height: 1.5;
+    }
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
+    }
+    h1 {
+      font-size: 1.5rem;
+      margin-bottom: 8px;
+    }
+    p {
+      color: #b5bac1;
+      margin-bottom: 24px;
+      font-size: 0.95rem;
+    }
+    label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 6px;
+      font-size: 0.9rem;
+    }
+    input {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 8px;
+      border: 1px solid #3f4147;
+      background: #2b2d31;
+      color: #f2f3f5;
+      font-size: 1rem;
+      margin-bottom: 16px;
+    }
+    input:focus {
+      outline: none;
+      border-color: #5865f2;
+    }
+    button {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 8px;
+      background: #5865f2;
+      color: white;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    button:hover:not(:disabled) {
+      background: #4752c4;
+    }
+    .result {
+      margin-top: 20px;
+      padding: 14px;
+      border-radius: 8px;
+      display: none;
+      white-space: pre-wrap;
+      font-size: 0.9rem;
+    }
+    .result.success {
+      display: block;
+      background: rgba(35, 165, 89, 0.15);
+      border: 1px solid rgba(35, 165, 89, 0.3);
+      color: #23a559;
+    }
+    .result.error {
+      display: block;
+      background: rgba(242, 63, 67, 0.15);
+      border: 1px solid rgba(242, 63, 67, 0.3);
+      color: #f23f43;
+    }
+    .warning {
+      background: rgba(250, 168, 26, 0.15);
+      border: 1px solid rgba(250, 168, 26, 0.3);
+      color: #faa81a;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Register Slash Commands</h1>
+    <p>Use this page on your phone to register the bot’s commands. No terminal needed.</p>
+
+    <div class="warning">
+      ⚠️ Only paste your Bot Token here temporarily. Never share this page or your token with anyone.
+    </div>
+
+    <label for="token">Bot Token</label>
+    <input type="password" id="token" placeholder="Paste your bot token" autocomplete="off" />
+
+    <label for="appId">Application ID</label>
+    <input type="text" id="appId" placeholder="Paste your Application ID" />
+
+    <button id="registerBtn">Register Commands</button>
+
+    <div id="result" class="result"></div>
+  </div>
+
+  <script>
+    const commands = [
+      { name: 'ping', description: 'Replies with Pong and latency' },
+      { name: 'hello', description: 'Says hello to you' },
+      { name: 'info', description: 'Shows information about this bot' }
+    ];
+
+    document.getElementById('registerBtn').addEventListener('click', async () => {
+      const token = document.getElementById('token').value.trim();
+      const appId = document.getElementById('appId').value.trim();
+      const result = document.getElementById('result');
+      const btn = document.getElementById('registerBtn');
+
+      if (!token || !appId) {
+        result.className = 'result error';
+        result.textContent = 'Please fill in both fields.';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Registering...';
+      result.style.display = 'none';
+
+      try {
+        const res = await fetch(`https://discord.com/api/v10/applications/${appId}/commands`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bot ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(commands)
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          result.className = 'result success';
+          result.textContent = '✅ Successfully registered commands:\n\n' +
+            data.map(c => `/${c.name}`).join('\n') +
+            '\n\nYou can now use these commands in your server!';
+        } else {
+          result.className = 'result error';
+          result.textContent = 'Error: ' + (data.message || JSON.stringify(data, null, 2));
+        }
+      } catch (err) {
+        result.className = 'result error';
+        result.textContent = 'Network error: ' + err.message;
+      }
+
+      btn.disabled = false;
+      btn.textContent = 'Register Commands';
+    });
+  </script>
+</body>
+</html>
