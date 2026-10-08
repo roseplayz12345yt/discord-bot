@@ -1,0 +1,16 @@
+{
+  "name": "discord-bot",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "register": "node register-commands.js"
+  },
+  "dependencies": {
+    "discord-interactions": "^4.0.0"
+  },
+  "devDependencies": {
+    "wrangler": "^3.78.0"
+  }
+}
